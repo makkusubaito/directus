@@ -2,6 +2,7 @@ import { i18n } from '@/lang';
 import { Ref, ref } from 'vue';
 
 type LinkSelection = {
+	internal: boolean
 	url: string | null;
 	displayText: string | null;
 	title: string | null;
@@ -28,6 +29,7 @@ export default function useLink(editor: Ref<any>): UsableLink {
 	const linkDrawerOpen = ref(false);
 
 	const defaultLinkSelection = {
+		internal: false,
 		url: null,
 		displayText: null,
 		title: null,
@@ -37,6 +39,7 @@ export default function useLink(editor: Ref<any>): UsableLink {
 	const linkSelection = ref<LinkSelection>(defaultLinkSelection);
 	const linkNode: Ref<HTMLLinkElement | null> = ref(null);
 	const currentSelectionNode = ref<HTMLElement | null>(null);
+
 
 	const linkButton = {
 		icon: 'link',
@@ -50,7 +53,7 @@ export default function useLink(editor: Ref<any>): UsableLink {
 
 			if (linkNode.value) {
 				editor.value.selection.select(currentSelectionNode.value);
-
+				const internal = linkNode.value.getAttribute('data-internal') === 'true';
 				const url = linkNode.value.getAttribute('href');
 				const title = linkNode.value.getAttribute('title');
 				const displayText = linkNode.value.innerText;
@@ -61,6 +64,7 @@ export default function useLink(editor: Ref<any>): UsableLink {
 				}
 
 				linkSelection.value = {
+					internal,
 					url,
 					displayText,
 					title: title || null,
@@ -103,7 +107,8 @@ export default function useLink(editor: Ref<any>): UsableLink {
 		},
 	};
 
-	return { linkDrawerOpen, linkSelection, linkNode, closeLinkDrawer, saveLink, linkButton };
+
+	return { linkDrawerOpen, linkSelection, linkNode, closeLinkDrawer, saveLink, linkButton,  };
 
 	function setLinkSelection(overrideLinkSelection: Partial<LinkSelection> = {}) {
 		linkSelection.value = Object.assign({}, defaultLinkSelection, overrideLinkSelection);

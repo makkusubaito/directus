@@ -13,6 +13,7 @@ import useSourceCode from './useSourceCode';
 
 import 'tinymce/tinymce';
 
+import { useItems } from '@directus/composables';
 import 'tinymce/icons/default';
 import 'tinymce/models/dom';
 import 'tinymce/plugins/autoresize/plugin';
@@ -40,8 +41,10 @@ type CustomFormat = {
 const props = withDefaults(
 	defineProps<{
 		value: string | null;
+		collection: string;
 		field?: string;
 		toolbar?: string[];
+		displayTemplate?: string;
 		font?: 'sans-serif' | 'serif' | 'monospace';
 		customFormats?: CustomFormat[];
 		tinymceOverrides?: Record<string, unknown>;
@@ -79,11 +82,24 @@ const emit = defineEmits(['input']);
 const { t } = useI18n();
 const editorRef = ref<any | null>(null);
 const editorElement = ref<ComponentPublicInstance | null>(null);
-const { imageToken } = toRefs(props);
+const { imageToken,collection } = toRefs(props);
+const sort = ref<string[] | null>(null);
+const filter = ref<null>(null);
+const limit = ref<number | null>(20);
+const page = ref<number | null>(null);
+const fields = ref<string[] | null>(['*']);
+const search = ref<string | null>(null);
+const items = useItems(collection, { sort, filter, limit, page, fields, search });
+
+
+
+
+
 const settingsStore = useSettingsStore();
 
 const storageAssetTransform = ref('all');
 const storageAssetPresets = ref<SettingsStorageAssetPreset[]>([]);
+
 
 if (settingsStore.settings?.storage_asset_transform) {
 	storageAssetTransform.value = settingsStore.settings.storage_asset_transform;
@@ -247,6 +263,7 @@ function setupContentWatcher() {
 }
 
 function setup(editor: any) {
+	items.getItems();
 	editorRef.value = editor;
 
 	editor.ui.registry.addToggleButton('customImage', imageButton);
@@ -329,6 +346,27 @@ function setFocus(val: boolean) {
 				<v-card-text>
 					<div class="grid">
 						<div class="field">
+							<div class="type-label" >internal </div>
+							<v-checkbox
+								v-model="linkSelection.internal"
+								block
+								:label="'internal'"
+							></v-checkbox>
+
+						</div>
+							<div v-if="linkSelection.internal" class="field">
+								<div
+								class="type-label
+								">{{ 'test' }}</div>
+								<v-select
+									v-model="linkSelection.url"
+									:items="items.items.value.map((item) => ({ text: item.title, value: item.href }))"
+									show-deselect
+								/>
+							</div>
+
+
+						<div v-else class="field">
 							<div class="type-label">{{ t('url') }}</div>
 							<v-input v-model="linkSelection.url" :placeholder="t('url_placeholder')" autofocus></v-input>
 						</div>

@@ -1,5 +1,6 @@
+import { useCollectionsStore } from '@/stores/collections';
 import { defineInterface } from '@directus/extensions';
-import { defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent } from 'vue';
 import PreviewSVG from './preview.svg?raw';
 
 const InterfaceWYSIWYG = defineAsyncComponent(() => import('./input-rich-text-html.vue'));
@@ -13,8 +14,14 @@ export default defineInterface({
 	types: ['text'],
 	group: 'standard',
 	preview: PreviewSVG,
-	options: {
-		standard: [
+	options: () => {
+		const collectionsStore = useCollectionsStore();
+		const collections = computed(() => collectionsStore.allCollections);
+
+		const allColections = (collections.value.map((collection) => collection.collection));
+
+		return [
+
 			{
 				field: 'toolbar',
 				name: '$t:interfaces.input-rich-text-html.toolbar',
@@ -222,6 +229,7 @@ export default defineInterface({
 							},
 						],
 					},
+
 				},
 			},
 			{
@@ -244,6 +252,22 @@ export default defineInterface({
 				},
 			},
 			{
+				field: 'collection',
+				name: 'Link Field',
+				meta: {
+					interface: 'select-dropdown',
+					options: {
+						choices: allColections,
+					},
+
+					width: 'full',
+					note: 'The collection that contains the link'
+				},
+				schema: {
+					default_value: 'id',
+				},
+			},
+			{
 				field: 'folder',
 				name: '$t:folder',
 				type: 'uuid',
@@ -263,8 +287,6 @@ export default defineInterface({
 					interface: 'input',
 				},
 			},
-		],
-		advanced: [
 			{
 				field: 'softLength',
 				name: '$t:soft_length',
@@ -323,6 +345,5 @@ export default defineInterface({
 					},
 				},
 			},
-		],
-	},
+		]}
 });
