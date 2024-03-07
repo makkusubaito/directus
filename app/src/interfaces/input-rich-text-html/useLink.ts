@@ -145,15 +145,13 @@ export default function useLink(editor: Ref<any>): UsableLink {
       if (link.makeButton) {
         linkHtml = `<a href="${link.url}" ${link.title ? `title="${link.title}"` : ''} target="${
           link.newTab ? '_blank' : '_self'
-        }" data-internal="true" data-internal-id=="${link.internalId}" type="button">${
-          link.displayText || link.url
-        }</a>`;
+        }" data-internal="true" data-internal-id="${link.internalId}" type="button" data-button-variant="${
+          link.buttonVariant
+        }">${link.displayText || link.url}</a>`;
       } else {
         linkHtml = `<a href="${link.url}" ${link.title ? `title="${link.title}"` : ''} target="${
           link.newTab ? '_blank' : '_self'
-        }" data-internal-id="${link.internalId}" data-button-variant="${link.buttonVariant}" data-internal="true">${
-          link.displayText || link.url
-        }</a>`;
+        }" data-internal-id="${link.internalId}"  data-internal="true">${link.displayText || link.url}</a>`;
       }
     } else if (link.url === null) {
       if (linkNode.value) {
